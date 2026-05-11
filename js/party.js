@@ -24,7 +24,13 @@ class PartyScene extends Phaser.Scene {
         ];
     }
 
-    
+    preload() {
+        this.load.image('matei_img', 'assets/matei.png');
+        this.load.audio('type_sound', 'assets/type.mp3');
+        this.load.audio('hooray_sound', 'assets/hooray.mp3');
+        this.load.audio('wrong_sound', 'assets/wrong.mp3');
+        this.load.audio('hbd_sound', 'assets/hbd.mp3');
+    }
 
     create() {
         const w = this.cameras.main.width;

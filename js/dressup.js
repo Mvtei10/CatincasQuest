@@ -6,7 +6,30 @@ class DressupScene extends Phaser.Scene {
         this.registry.set('selectedDress', 'dressup_costum_base');
     }
 
-    
+    preload() {
+        this.load.image('fundal_dressup', 'assets/fundal_dressup.png');
+        this.load.image('dressup_costum_base', 'assets/dressup_costum.png');
+        this.load.audio('dressup_music', 'assets/dressup_song.mp3');
+
+        this.categories = [
+            { name: 'Casual', font: 'Courier New' },
+            { name: 'Rochie', font: 'Georgia' },
+            { name: 'Pijamale', font: 'Trebuchet MS' },
+            { name: 'Sport', font: 'Impact' },
+            { name: 'Funny', font: 'Comic Sans MS' },
+            { name: 'Printesa', font: 'Palatino' },
+            { name: 'Gipsy', font: 'Times New Roman' },
+            { name: 'Streetwear', font: 'Verdana' },
+            { name: 'Cyber', font: 'Lucida Console' }
+        ];
+
+        this.categories.forEach(cat => {
+            for (let i = 1; i <= 3; i++) {
+                let itemName = cat.name.toLowerCase() + i; 
+                this.load.image(itemName, `assets/${itemName}.png`);
+            }
+        });
+    }
 
     create() {
         const w = this.cameras.main.width;
