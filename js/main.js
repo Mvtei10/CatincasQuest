@@ -204,7 +204,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH, // Centrează jocul pe ecran
         orientation: Phaser.Scale.Orientation.LANDSCAPE // Forțează modul landscape pe mobil
     },
-    scene: [DebugScene ,MenuScene, PlayScene, MakeupScene, DressupScene, SubwaySurferScene, PartyScene]
+    scene: [MenuScene, PlayScene, MakeupScene, DressupScene, SubwaySurferScene, PartyScene]
 };
 
 const game = new Phaser.Game(config);
