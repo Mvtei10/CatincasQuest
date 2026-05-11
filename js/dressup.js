@@ -26,7 +26,7 @@ class DressupScene extends Phaser.Scene {
         this.categories.forEach(cat => {
             for (let i = 1; i <= 3; i++) {
                 let itemName = cat.name.toLowerCase() + i; 
-                this.load.image(itemName, `assets/${itemName}.PNG`);
+                this.load.image(itemName, `assets/${itemName}.png`);
             }
         });
     }

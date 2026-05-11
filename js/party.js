@@ -122,7 +122,7 @@ class PartyScene extends Phaser.Scene {
             fontSize: '80px', fill: '#2ecc71', fontStyle: 'bold', letterSpacing: 15
         }).setOrigin(0.5);
 
-        this.hintText = this.add.text(w/2, h/2 + 130, "Codul aniversării noastre", { 
+        this.hintText = this.add.text(w/2, h/2 + 130, "", { 
             fontSize: '26px', fill: '#bdc3c7' 
         }).setOrigin(0.5);
 
