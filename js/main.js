@@ -83,18 +83,7 @@ class MenuScene extends Phaser.Scene {
 // --- SCENA 2: NIVELUL CU CASTELUL ---
 class PlayScene extends Phaser.Scene {
     constructor() { super('PlayScene'); }
-    preload() {
-        this.load.image('fata_catinca', 'assets/fata.png'); 
-        this.textures.addCanvas('catinca_body', generateCatincaBodyCanvas());
-        this.textures.addCanvas('heart_img', generateHeartCanvas('#ff69b4'));
-        this.textures.addCanvas('cone_img', generateConeCanvas());
-        this.textures.addCanvas('cloud_decor', generateRealisticCloud(100, 1));
-        this.textures.addCanvas('cloud_jump', generateRealisticCloud(160, 0.5));
-        this.load.image('ground_tile', 'https://labs.phaser.io/assets/sprites/platform.png');
-        this.load.audio('hurt_1', 'assets/hurt_1.mp3');
-        this.load.audio('hurt_2', 'assets/hurt_2.mp3');
-        this.load.audio('hurt_3', 'assets/hurt_3.mp3');
-    }
+    
     create() {
         const worldWidth = 12000;
         this.physics.world.setBounds(0, 0, worldWidth, 600);
@@ -204,7 +193,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH, // Centrează jocul pe ecran
         orientation: Phaser.Scale.Orientation.LANDSCAPE // Forțează modul landscape pe mobil
     },
-    scene: [MenuScene, PlayScene, MakeupScene, DressupScene, SubwaySurferScene, PartyScene]
+    scene: [PreloaderScene, MenuScene, PlayScene, MakeupScene, DressupScene, SubwaySurferScene, PartyScene]
 };
 
 const game = new Phaser.Game(config);

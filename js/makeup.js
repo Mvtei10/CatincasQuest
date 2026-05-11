@@ -1,23 +1,7 @@
 class MakeupScene extends Phaser.Scene {
     constructor() { super('MakeupScene'); }
 
-    preload() {
-        this.load.image('fata_0', 'assets/fata_simpla.png');
-        this.load.image('fata_1', 'assets/fata_concealer.png');
-        this.load.image('fata_2', 'assets/fata_pudra.png');
-        this.load.image('fata_3', 'assets/fata_blush.png');
-        this.load.image('fata_4', 'assets/fata_rimel.png');
-        this.load.image('fata_5', 'assets/fata_ruj.png');
-
-        this.load.image('item_concealer', 'assets/concealer.png');
-        this.load.image('item_pudra', 'assets/pudra.png');
-        this.load.image('item_blush', 'assets/blush.png');
-        this.load.image('item_rimel', 'assets/rimel.png');
-        this.load.image('item_lipstick', 'assets/lipstick.png');
-
-        this.load.audio('makeup_bg', 'assets/backround2.mp3');
-        this.load.audio('wrong_snd', 'assets/wrong.mp3');
-    }
+    
 
     create() {
         this.cameras.main.resetFX();
