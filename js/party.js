@@ -9,8 +9,8 @@ class PartyScene extends Phaser.Scene {
         this.attempts = 0;
         this.pinCode = "";
         this.isGameOver = false;
+        this.pinScreenActive = false;
         this.currentTargetText = "";
-        this.pinScreenActive = false; // Flag pentru a preveni dublarea ecranului
 
         this.catincaTexture = this.registry.get('selectedDress') || 'dressup_costum_base';
 
@@ -53,7 +53,6 @@ class PartyScene extends Phaser.Scene {
 
         btnBg.on('pointerdown', () => this.handleAdvance());
         this.input.keyboard.on('keydown-ENTER', () => this.handleAdvance());
-        this.input.keyboard.on('keydown-RIGHT', () => this.handleAdvance());
 
         this.showNextDialog();
     }
@@ -104,7 +103,7 @@ class PartyScene extends Phaser.Scene {
     }
 
     showPinScreen() {
-        if (this.pinScreenActive) return; // Dacă e deja activ, nu mai facem nimic
+        if (this.pinScreenActive) return;
         this.pinScreenActive = true;
 
         this.chatUI.setVisible(false);
@@ -112,49 +111,63 @@ class PartyScene extends Phaser.Scene {
         const h = this.cameras.main.height;
 
         this.pinContainer = this.add.container(0, 0).setDepth(100);
-        this.pinContainer.add(this.add.rectangle(w/2, h/2, w, h, 0x000000, 0.95));
+        let overlay = this.add.rectangle(w/2, h/2, w, h, 0x000000, 0.95).setInteractive();
+        this.pinContainer.add(overlay);
         
-        this.pinContainer.add(this.add.text(w/2, h/2 - 150, "INTRODU CODUL PIN (6 CIFRE)", { 
+        this.pinContainer.add(this.add.text(w/2, h/2 - 150, "INTRODU CODUL PIN", { 
             fontSize: '38px', fill: '#fff', fontStyle: 'bold' 
         }).setOrigin(0.5));
 
-        this.pinDisplay = this.add.text(w/2, h/2, "______", { 
-            fontSize: '80px', fill: '#2ecc71', fontStyle: 'bold', letterSpacing: 15
+        // Textul care afișează PIN-ul (fără bare jos)
+        this.pinDisplay = this.add.text(w/2, h/2, "", { 
+            fontSize: '100px', fill: '#2ecc71', fontStyle: 'bold', letterSpacing: 20
         }).setOrigin(0.5);
 
-        this.hintText = this.add.text(w/2, h/2 + 130, "", { 
-            fontSize: '26px', fill: '#bdc3c7' 
+        this.hintText = this.add.text(w/2, h/2 + 130, "Atinge ecranul pentru a tasta", { 
+            fontSize: '24px', fill: '#bdc3c7' 
         }).setOrigin(0.5);
 
         this.pinContainer.add([this.pinDisplay, this.hintText]);
 
-        // REZOLVARE DUBLARE: Ștergem orice ascultător anterior
-        this.input.keyboard.removeAllListeners();
+        // --- LOGICA PENTRU TASTATURĂ TABLETĂ/MOBIL ---
+        // Creăm un element HTML invizibil
+        this.hiddenInput = document.createElement('input');
+        this.hiddenInput.type = 'number'; // Deschide tastatura numerică
+        this.hiddenInput.style.position = 'absolute';
+        this.hiddenInput.style.top = '0px';
+        this.hiddenInput.style.left = '0px';
+        this.hiddenInput.style.width = '100%';
+        this.hiddenInput.style.height = '100%';
+        this.hiddenInput.style.opacity = '0'; // Invizibil dar funcțional
+        this.hiddenInput.style.zIndex = '-1';
+        document.body.appendChild(this.hiddenInput);
 
-        this.input.keyboard.on('keydown', (event) => {
-            if (this.isGameOver) return;
+        // Focus automat pentru a deschide tastatura
+        this.hiddenInput.focus();
 
-            // Logica taste cifre (48-57 sunt tastele 0-9)
-            if (event.keyCode >= 48 && event.keyCode <= 57 && this.pinCode.length < 6) {
-                this.pinCode += event.key;
-            } 
-            // Logica Backspace
-            else if (event.keyCode === 8 && this.pinCode.length > 0) {
-                this.pinCode = this.pinCode.slice(0, -1);
-            } 
-            // Logica Enter
-            else if (event.keyCode === 13 && this.pinCode.length === 6) {
+        // Dacă utilizatorul închide tastatura, o poate deschide atingând ecranul
+        overlay.on('pointerdown', () => {
+            this.hiddenInput.focus();
+        });
+
+        // Ascultăm ce se scrie în input-ul ascuns
+        this.hiddenInput.addEventListener('input', (e) => {
+            let val = e.target.value;
+            if (val.length > 6) val = val.slice(0, 6);
+            this.pinCode = val;
+            this.hiddenInput.value = this.pinCode; // Menținem sincronizarea
+            
+            this.pinDisplay.setText(this.pinCode);
+
+            if (this.pinCode.length === 6) {
                 this.checkPin();
             }
-            
-            // Actualizare vizuală
-            let display = this.pinCode + "_".repeat(6 - this.pinCode.length);
-            this.pinDisplay.setText(display);
         });
     }
 
     checkPin() {
         if (this.pinCode === "160225") {
+            this.cleanupInput();
             this.pinContainer.destroy();
             let hooray = this.sound.add('hooray_sound');
             hooray.play();
@@ -175,12 +188,21 @@ class PartyScene extends Phaser.Scene {
         } else {
             this.attempts++;
             this.pinCode = "";
-            this.pinDisplay.setText("______");
+            this.hiddenInput.value = "";
+            this.pinDisplay.setText("");
             if (this.cache.audio.exists('wrong_sound')) this.sound.play('wrong_sound');
             this.cameras.main.shake(200, 0.01);
             if (this.attempts >= 2) {
-                this.hintText.setText("HINT: REPREZENTATIV NOUĂ").setFill('#f1c40f').setFontStyle('bold');
+                this.hintText.setText("HINT: DATA CÂND NE-AM ÎNTÂLNIT").setFill('#f1c40f').setFontStyle('bold');
             }
+        }
+    }
+
+    cleanupInput() {
+        if (this.hiddenInput) {
+            this.hiddenInput.blur(); // Închide tastatura
+            document.body.removeChild(this.hiddenInput);
+            this.hiddenInput = null;
         }
     }
 
@@ -188,16 +210,11 @@ class PartyScene extends Phaser.Scene {
         this.isGameOver = true;
         const w = this.cameras.main.width;
         const h = this.cameras.main.height;
-
         let riddle = "Nu sunt pernă, dar o țin.\nNu sunt pătură, dar dormim împreună.\nStau ascuns în pat mereu,\nȘi fără mine ar fi greu.\n\nCe sunt?";
-        
-        this.add.text(w/2, h/2, riddle, { 
-            fontSize: '36px', fill: '#fff', align: 'center', fontStyle: 'bold', lineSpacing: 20 
-        }).setOrigin(0.5).setDepth(201);
+        this.add.text(w/2, h/2, riddle, { fontSize: '36px', fill: '#fff', align: 'center', fontStyle: 'bold', lineSpacing: 20 }).setOrigin(0.5).setDepth(201);
 
         this.time.addEvent({
-            delay: 200,
-            loop: true,
+            delay: 200, loop: true,
             callback: () => {
                 let x = Phaser.Math.Between(0, w);
                 let emoji = Phaser.Math.RND.pick(["🎉", "🎂", "❤️", "🍰", "✨"]);
