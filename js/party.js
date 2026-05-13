@@ -22,6 +22,10 @@ class PartyScene extends Phaser.Scene {
             { name: "Matei", color: "#3498db", text: "Am un cadou special pentru tine, dar e blocat de un cod PIN din 6 cifre, iar tu trebuie să-l deschizi." },
             { name: "Catinca", color: "#ff1493", text: "Dă-l încoace, îl voi deschide din prima" }
         ];
+
+        // Definire scale-uri de bază (Ajustează aici dacă e nevoie)
+        this.mScale = 0.35; // Scara lui Matei
+        this.cScale = 0.60; // Scara Catincăi (Mărită pentru a se potrivi)
     }
 
     preload() {
@@ -38,8 +42,9 @@ class PartyScene extends Phaser.Scene {
 
         this.add.rectangle(w / 2, h / 2, w, h, 0xfff0f5).setDepth(0);
 
-        this.mateiPortrait = this.add.image(w * 0.22, h, 'matei_img').setScale(0.35).setOrigin(0.5, 1).setDepth(1).setAlpha(0.6);
-        this.catincaPortrait = this.add.image(w * 0.78, h, this.catincaTexture).setScale(0.35).setOrigin(0.5, 1).setDepth(1).setAlpha(0.6);
+        // Creare portrete cu scale-uri diferite
+        this.mateiPortrait = this.add.image(w * 0.22, h, 'matei_img').setScale(this.mScale).setOrigin(0.5, 1).setDepth(1).setAlpha(0.6);
+        this.catincaPortrait = this.add.image(w * 0.78, h, this.catincaTexture).setScale(this.cScale).setOrigin(0.5, 1).setDepth(1).setAlpha(0.6);
 
         this.chatUI = this.add.container(0, h - 220).setDepth(10);
         let box = this.add.rectangle(w / 2, 110, w - 40, 200, 0xffffff, 0.95).setStrokeStyle(5, 0xff1493);
@@ -65,17 +70,31 @@ class PartyScene extends Phaser.Scene {
     showNextDialog() {
         if (this.dialogIndex < this.dialogs.length) {
             let d = this.dialogs[this.dialogIndex];
-            if (d.name === "Matei") this.highlightCharacter(this.mateiPortrait, this.catincaPortrait);
-            else this.highlightCharacter(this.catincaPortrait, this.mateiPortrait);
+            if (d.name === "Matei") {
+                this.highlightCharacter(this.mateiPortrait, this.mScale, this.catincaPortrait, this.cScale);
+            } else {
+                this.highlightCharacter(this.catincaPortrait, this.cScale, this.mateiPortrait, this.mScale);
+            }
             this.typeWrite(d.text);
         } else {
             this.showPinScreen();
         }
     }
 
-    highlightCharacter(active, inactive) {
-        this.tweens.add({ targets: active, scale: 0.4, alpha: 1, duration: 300 });
-        this.tweens.add({ targets: inactive, scale: 0.35, alpha: 0.5, duration: 300 });
+    // Funcție adaptată pentru a păstra proporțiile corecte la zoom
+    highlightCharacter(active, activeBaseScale, inactive, inactiveBaseScale) {
+        this.tweens.add({ 
+            targets: active, 
+            scale: activeBaseScale * 1.15, // Crește cu 15% față de mărimea lui originală
+            alpha: 1, 
+            duration: 300 
+        });
+        this.tweens.add({ 
+            targets: inactive, 
+            scale: inactiveBaseScale, 
+            alpha: 0.5, 
+            duration: 300 
+        });
     }
 
     typeWrite(text) {
@@ -118,7 +137,6 @@ class PartyScene extends Phaser.Scene {
             fontSize: '38px', fill: '#fff', fontStyle: 'bold' 
         }).setOrigin(0.5));
 
-        // Textul care afișează PIN-ul (fără bare jos)
         this.pinDisplay = this.add.text(w/2, h/2, "", { 
             fontSize: '100px', fill: '#2ecc71', fontStyle: 'bold', letterSpacing: 20
         }).setOrigin(0.5);
@@ -129,33 +147,28 @@ class PartyScene extends Phaser.Scene {
 
         this.pinContainer.add([this.pinDisplay, this.hintText]);
 
-        // --- LOGICA PENTRU TASTATURĂ TABLETĂ/MOBIL ---
-        // Creăm un element HTML invizibil
         this.hiddenInput = document.createElement('input');
-        this.hiddenInput.type = 'number'; // Deschide tastatura numerică
+        this.hiddenInput.type = 'number'; 
         this.hiddenInput.style.position = 'absolute';
         this.hiddenInput.style.top = '0px';
         this.hiddenInput.style.left = '0px';
         this.hiddenInput.style.width = '100%';
         this.hiddenInput.style.height = '100%';
-        this.hiddenInput.style.opacity = '0'; // Invizibil dar funcțional
+        this.hiddenInput.style.opacity = '0'; 
         this.hiddenInput.style.zIndex = '-1';
         document.body.appendChild(this.hiddenInput);
 
-        // Focus automat pentru a deschide tastatura
         this.hiddenInput.focus();
 
-        // Dacă utilizatorul închide tastatura, o poate deschide atingând ecranul
         overlay.on('pointerdown', () => {
             this.hiddenInput.focus();
         });
 
-        // Ascultăm ce se scrie în input-ul ascuns
         this.hiddenInput.addEventListener('input', (e) => {
             let val = e.target.value;
             if (val.length > 6) val = val.slice(0, 6);
             this.pinCode = val;
-            this.hiddenInput.value = this.pinCode; // Menținem sincronizarea
+            this.hiddenInput.value = this.pinCode; 
             
             this.pinDisplay.setText(this.pinCode);
 
@@ -200,7 +213,7 @@ class PartyScene extends Phaser.Scene {
 
     cleanupInput() {
         if (this.hiddenInput) {
-            this.hiddenInput.blur(); // Închide tastatura
+            this.hiddenInput.blur(); 
             document.body.removeChild(this.hiddenInput);
             this.hiddenInput = null;
         }
