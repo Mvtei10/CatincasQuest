@@ -198,11 +198,11 @@ const config = {
             debug: false
         }
     },
-    // --- ACEASTA ESTE SECȚIUNEA PENTRU FULLSCREEN ȘI LANDSCAPE ---
+    // --- MODIFICARE AICI: Am schimbat Scale.FIT cu Scale.NONE pentru a bloca mărimea ---
     scale: {
-        mode: Phaser.Scale.FIT,           // Face jocul să ocupe tot ecranul disponibil păstrând proporțiile
-        autoCenter: Phaser.Scale.CENTER_BOTH, // Centrează jocul pe ecran
-        orientation: Phaser.Scale.Orientation.LANDSCAPE // Forțează modul landscape pe mobil
+        mode: Phaser.Scale.NONE,           
+        autoCenter: Phaser.Scale.CENTER_BOTH, 
+        orientation: Phaser.Scale.Orientation.LANDSCAPE 
     },
     scene: [PreloaderScene, MenuScene, PlayScene, MakeupScene, DressupScene, SubwaySurferScene, PartyScene]
 };
